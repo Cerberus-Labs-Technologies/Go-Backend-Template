@@ -28,7 +28,6 @@ type App struct {
 
 func main() {
 	start := time.Now()
-
 	log.Println("Starting application...")
 	rand.Seed(time.Now().UnixNano())
 	err := godotenv.Load()
