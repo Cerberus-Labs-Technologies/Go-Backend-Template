@@ -10,6 +10,7 @@ import (
 	"necross.it/backend/auth"
 	"necross.it/backend/auth/user"
 	"necross.it/backend/database"
+	"necross.it/backend/settings"
 	"necross.it/backend/util"
 	"necross.it/backend/verify"
 	"os"
@@ -17,11 +18,12 @@ import (
 )
 
 type App struct {
-	DB      database.Server
-	User    user.Service
-	Auth    auth.Service
-	Verify  verify.Service
-	General util.Service
+	DB       database.Server
+	Settings settings.Settings
+	User     user.Service
+	Auth     auth.Service
+	Verify   verify.Service
+	General  util.Service
 }
 
 func main() {
@@ -53,12 +55,15 @@ func main() {
 		General: generalService,
 	}
 
+	appSettings := settings.Settings{}
+
 	app := App{
-		DB:      databaseConnection,
-		User:    userService,
-		Auth:    authService,
-		General: generalService,
-		Verify:  verifyService,
+		DB:       databaseConnection,
+		Settings: appSettings,
+		User:     userService,
+		Auth:     authService,
+		General:  generalService,
+		Verify:   verifyService,
 	}
 
 	server := fiber.New(fiber.Config{

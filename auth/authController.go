@@ -46,7 +46,7 @@ func (s *Service) Logout(ctx *fiber.Ctx) error {
 	if err != nil {
 		return util.RestResponse(ctx, 500, "Could not delete token")
 	}
-	return util.RestResponse(ctx, 200, "Erfolgreich abgemeldet!")
+	return util.RestResponse(ctx, 200, "Successfully logged out!")
 }
 
 func (s *Service) UserMe(ctx *fiber.Ctx) error {
@@ -74,17 +74,17 @@ func (s *Service) RegisterController(ctx *fiber.Ctx) error {
 	var registerForm RegisterForm
 	_ = ctx.BodyParser(&registerForm)
 	if s.UserExistsByEmail(registerForm.Email) {
-		return util.RestResponse(ctx, 400, "Diese E-Mail Adresse ist bereits vergeben!")
+		return util.RestResponse(ctx, 400, "This E-Mail address is already in use!")
 	}
 	if !util.IsValidEmail(registerForm.Email) {
-		return util.RestResponse(ctx, 400, "Diese E-Mail Adresse ist ungültig!")
+		return util.RestResponse(ctx, 400, "This E-Mail is invalid!")
 	}
 	if len(registerForm.Password) < 8 {
-		return util.RestResponse(ctx, 400, "Das Passwort muss mindestens 8 Zeichen lang sein!")
+		return util.RestResponse(ctx, 400, "The password needs a length of at least 8 characters!")
 	}
 	user, err := s.RegisterService(registerForm)
 	if err != nil {
-		return util.RestResponse(ctx, 500, "Es ist ein Fehler aufgetreten! Bitte versuche es später erneut!")
+		return util.RestResponse(ctx, 500, "An error has occurred. Please try again later!")
 	}
 	user, token, err := s.Login(registerForm.Email, []byte(registerForm.Password))
 	auth, err := s.CreateToken(user, token)
@@ -112,7 +112,7 @@ func (s *Service) DeleteAccount(ctx *fiber.Ctx) error {
 	if err != nil {
 		return util.RestResponse(ctx, 500, "Could not send mail")
 	}
-	return util.RestResponse(ctx, 200, "Wir haben dir eine E-Mail zum Löschen deines Accounts geschickt!")
+	return util.RestResponse(ctx, 200, "We've send you an email for your account deletion!")
 }
 
 func (s *Service) AuthToken(ctx *fiber.Ctx) (Token, user.User, error) {
@@ -148,7 +148,7 @@ func (s *Service) ChangeEmail(ctx *fiber.Ctx) error {
 	if err != nil {
 		return util.RestResponse(ctx, 500, "E-Mail konnte nicht geändert werden!")
 	}
-	return util.RestResponse(ctx, 200, "E-Mail wurde erfolgreich geändert, und alle anderen Geräte wurden abgemeldet!")
+	return util.RestResponse(ctx, 200, "Your email has been changed successfully, and we've logged out you from every device!")
 }
 
 func (s *Service) ChangePassword(ctx *fiber.Ctx) error {
@@ -159,7 +159,7 @@ func (s *Service) ChangePassword(ctx *fiber.Ctx) error {
 		return util.RestResponse(ctx, 400, "Invalid token")
 	}
 	if len(changePasswordForm.Password) < 8 {
-		return util.RestResponse(ctx, 400, "Das Passwort muss mindestens 8 Zeichen lang sein!")
+		return util.RestResponse(ctx, 400, "The password needs a length of at least 8 characters!")
 	}
 	err = s.User.ChangePassword(changePasswordForm.Password, user)
 	if err != nil {
@@ -167,46 +167,46 @@ func (s *Service) ChangePassword(ctx *fiber.Ctx) error {
 	}
 	err = s.DeactivateTokens(user)
 	if err != nil {
-		return util.RestResponse(ctx, 500, "Sessions konnten nicht abgemeldet werden!")
+		return util.RestResponse(ctx, 500, "Could not log out from session!")
 	}
-	return util.RestResponse(ctx, 200, "Passwort wurde erfolgreich geändert, und alle Geräte wurden abgemeldet!")
+	return util.RestResponse(ctx, 200, "Your password has been changed successfully, and we've logged out you from every device!")
 }
 
 func (s *Service) ForgotPassword(ctx *fiber.Ctx) error {
 	var forgotPasswordForm ChangeEmailForm
 	err := ctx.BodyParser(&forgotPasswordForm)
 	if err != nil {
-		return util.RestResponse(ctx, 400, "Bitte gib eine E-Mail Adresse ein!")
+		return util.RestResponse(ctx, 400, "Please use an valid e-mail!")
 	}
 	user, err := s.GetUserByEmail(forgotPasswordForm.Email)
 	token, err := s.User.ForgotPassword(user)
 	if err != nil {
-		return util.RestResponse(ctx, 500, "Es ist ein Fehler aufgetreten! Bitte versuche es später erneut!")
+		return util.RestResponse(ctx, 500, "An error has occurred. Please try again later!")
 	}
 	go mail.SendForgotPasswordMail(user, mail.ForgotPasswordMail{Link: "https://pricelesskeys.com/auth/password/reset/" + token})
-	return util.RestResponse(ctx, 200, "Wir haben dir eine E-Mail zum Zurücksetzen deines Passworts geschickt!")
+	return util.RestResponse(ctx, 200, "We've send you an email for password reset!")
 }
 
 func (s *Service) ResetPassword(ctx *fiber.Ctx) error {
 	var resetPasswordForm ResetPasswordForm
 	err := ctx.BodyParser(&resetPasswordForm)
 	if err != nil {
-		return util.RestResponse(ctx, 400, "Bitte gib alle notwendigen Daten ein!")
+		return util.RestResponse(ctx, 400, "Please enter all valid data!")
 	}
 	user, err := s.GetUserByEmail(resetPasswordForm.Email)
 	if !s.User.ValidatePasswordResetToken(resetPasswordForm.Token, user) {
-		return util.RestResponse(ctx, 400, "Der Token ist ungültig")
+		return util.RestResponse(ctx, 400, "Token is invalid!")
 	}
 	err = s.User.ChangePassword(resetPasswordForm.Password, user)
 	if err != nil {
-		return util.RestResponse(ctx, 500, "Das Passwort konnte nicht zurückgesetzt werden!")
+		return util.RestResponse(ctx, 500, "Could not reset password!")
 	}
 	err = s.DeactivateTokens(user)
 	err = s.User.DeleteForgotPasswordToken(user)
 	if err != nil {
-		return util.RestResponse(ctx, 500, "Das Passwort konnte nicht zurückgesetzt werden!")
+		return util.RestResponse(ctx, 500, "Could not reset password!")
 	}
-	return util.RestResponse(ctx, 200, "Das Passwort wurde erfolgreich zurückgesetzt!")
+	return util.RestResponse(ctx, 200, "The password has been reset successfully!")
 }
 
 type ResetPasswordForm struct {

@@ -68,6 +68,5 @@ func (s *Service) DeleteUser(id string) error {
 	_, err := s.Server.DB.Exec("DELETE FROM users WHERE id = ?", id)
 	_, err = s.Server.DB.Exec("DELETE FROM auth_tokens WHERE user_id = ?", id)
 	_, err = s.Server.DB.Exec("DELETE FROM verify_mail WHERE userId = ?", id)
-	_, err = s.Server.DB.Exec("DELETE FROM watchers WHERE userID = ?", id)
 	return err
 }
