@@ -18,12 +18,13 @@ import (
 )
 
 type App struct {
-	DB       database.Server
-	Settings settings.Settings
-	User     user.Service
-	Auth     auth.Service
-	Verify   verify.Service
-	General  util.Service
+	DB         database.Server
+	Settings   settings.Settings
+	User       user.Service
+	Auth       auth.Service
+	Verify     verify.Service
+	Permission user.Service
+	General    util.Service
 }
 
 func main() {
@@ -47,6 +48,7 @@ func main() {
 	verifyService := verify.Service{
 		Server: databaseConnection,
 	}
+	permissionService := user.Service{Server: databaseConnection}
 	authService := auth.Service{
 		Server:  databaseConnection,
 		User:    userService,
@@ -57,12 +59,13 @@ func main() {
 	appSettings := settings.Settings{}
 
 	app := App{
-		DB:       databaseConnection,
-		Settings: appSettings,
-		User:     userService,
-		Auth:     authService,
-		General:  generalService,
-		Verify:   verifyService,
+		DB:         databaseConnection,
+		Settings:   appSettings,
+		User:       userService,
+		Auth:       authService,
+		General:    generalService,
+		Permission: permissionService,
+		Verify:     verifyService,
 	}
 
 	server := fiber.New(fiber.Config{
