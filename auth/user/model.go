@@ -12,7 +12,7 @@ type User struct {
 	Email           string              `json:"email" db:"email"`
 	EmailVerifiedAt util.TimeStamp      `json:"email_verified_at" db:"email_verified_at"`
 	Password        string              `json:"password" db:"password"`
-	Scope           string              `json:"scope" db:"scope"`
+	Scope           int                 `json:"scope" db:"scope"`
 	RememberToken   database.JsonString `json:"remember_token" db:"remember_token"`
 	CreatedAt       util.TimeStamp      `json:"created_at" db:"created_at"`
 	UpdatedAt       util.TimeStamp      `json:"updated_at" db:"updated_at"`
@@ -40,7 +40,7 @@ type AuthJSON struct {
 	Name            string         `json:"name"`
 	Email           string         `json:"email"`
 	EmailVerifiedAt util.TimeStamp `json:"email_verified_at"`
-	Scope           string         `json:"scope"`
+	Scope           int            `json:"scope"`
 	CreatedAt       util.TimeStamp `json:"created_at"`
 	UpdatedAt       util.TimeStamp `json:"updated_at"`
 }

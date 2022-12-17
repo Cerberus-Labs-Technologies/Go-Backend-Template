@@ -28,6 +28,28 @@ func (s *Service) AccessWithGuard(ctx *fiber.Ctx, scope string) error {
 	return ctx.Next()
 }
 
+func (s *Service) AccessWithPermission(ctx *fiber.Ctx, permission string) error {
+	var bearerToken = ctx.Get("Authorization")
+	if bearerToken == "" {
+		return util.RestResponse(ctx, 401, "Unauthorized")
+	}
+	token := bearerToken[7:]
+	authToken, err := s.GetByToken(token)
+	if err != nil {
+		return util.RestResponse(ctx, 401, "Unauthorized")
+	}
+	isExpired := s.CheckTokenExpired(authToken.Token)
+	if isExpired {
+		return util.RestResponse(ctx, 401, "Unauthorized")
+	}
+
+	hasAccess := s.HasPermission(authToken, permission)
+	if !hasAccess {
+		return util.RestResponse(ctx, 401, "Unauthorized")
+	}
+	return ctx.Next()
+}
+
 func (s *Service) IsLoggedIn(ctx *fiber.Ctx) error {
 	var bearerToken = ctx.Get("Authorization")
 	if bearerToken == "" {

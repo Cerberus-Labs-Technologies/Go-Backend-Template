@@ -98,17 +98,21 @@ type RegisterForm struct {
 // CheckScope func check scope of user
 func (s *Service) CheckScope(user Token, scope string) bool {
 	// scopes: user, moderator, admin
+	group, err := s.getGroupByUser(user)
+	if err != nil {
+		return false
+	}
 	// user > moderator > admin
-	if user.Scope == "admin" {
+	if group.Name == "admin" {
 		return true
-	} else if user.Scope == "moderator" {
+	} else if group.Name == "moderator" {
 		if scope == "user" || scope == "moderator" {
 			return true
 		}
-	} else if user.Scope == "user" {
+	} else if group.Name == "user" {
 		if scope == "user" {
 			return true
 		}
 	}
-	return user.Scope == scope
+	return group.Name == scope
 }
